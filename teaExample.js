@@ -1,4 +1,4 @@
-//Syncchronous Programming
+//Synchronous Programming
 //step 1
 console.log('boiling tea');
 //step 2
