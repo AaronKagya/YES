@@ -9,7 +9,7 @@ if not mt5.initialize():
     quit()
 
 # Define FVG strategy parameters
-symbol = "EURUSD"
+symbol = "Jump index 50"
 timeframe = mt5.TIMEFRAME_M15
 fvg_threshold = 10  # Example threshold, adjust as needed
 
