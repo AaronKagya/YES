@@ -10,7 +10,7 @@
 //      logic
 // }
 
-// age, child , adult, invalid
+age, child , adult, invalid
 
 let age = 0;
 if (age<0){
