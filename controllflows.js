@@ -14,7 +14,7 @@
 
 let age = 0;
 if (age<0){
-    console.log("invalid")
+    console.log("age cannot be negative")
 }else if (age>=18){
     console.log("this is an Adult")
 }else
