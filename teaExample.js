@@ -1,18 +1,18 @@
-//Synchronous Programming
-//step 1
+//SynchronousProgramming
+//step1
 console.log('boiling tea');
-//step 2
+//step2
 console.log('adding sugar');
-//step 3
+//step3
 console.log('adding tea leaves');
 
 // for Sychronous the process is step by step, one after the other
 
-// //Asynchronous Programming
-// //step 1
+// //AsynchronousProgramming
+// //step1
 console.log('boiling water');
-// //step 2
+// //step2
 console.log('adding sugar');
-// //step 3
+// //step3
 console.log('fetching water');
 // for this kind of Programming tasks a run independently and concurrently without waiting for each other 
