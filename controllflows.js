@@ -20,6 +20,9 @@ if (age<0){
 }else
     console.log("this is a child")
 
+
+// find a day by inputing a no. in the system,
+
  let number = 7;
  switch(number){
     case 1:
