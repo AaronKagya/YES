@@ -1,0 +1,24 @@
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+# Landing page (captive portal)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        # Simple authentication logic for demonstration
+        if username == "guest" and password == "tenet":
+            return redirect(url_for('success'))
+        else:
+            return render_template('login.html', error="Invalid credentials.")
+    return render_template('login.html')
+
+# Success page
+@app.route('/success')
+def success():
+    return "<h2>Welcome to TE.NET! You are now connected to the internet.</h2>"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
