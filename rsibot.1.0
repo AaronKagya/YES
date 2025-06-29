@@ -1,0 +1,24 @@
+import yfinance as yf
+import pandas as pd
+
+def compute_rsi(data, window=14):
+    delta = data['Close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+    rs = gain / loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
+
+# Download sample data (e.g., BTC-USD)
+symbol = 'BTC-USD'
+data = yf.download(symbol, period='60d', interval='1h')
+data['RSI'] = compute_rsi(data)
+
+# Bot logic: simple example
+for i in range(len(data)):
+    rsi = data['RSI'].iloc[i]
+    price = data['Close'].iloc[i]
+    if rsi < 30:
+        print(f"[BUY] at {data.index[i]}: RSI={rsi:.2f} Price={price}")
+    elif rsi > 70:
+        print(f"[SELL] at {data.index[i]}: RSI={rsi:.2f} Price={price}")
