@@ -1,0 +1,106 @@
+//+------------------------------------------------------------------+
+//|                      RSI Intelligent Bot for MT5                 |
+//+------------------------------------------------------------------+
+#property copyright "TE.NET"
+#property link      "https://tenet.hotspot"
+#property version   "1.00"
+#property strict
+
+input int    RSIPeriod      = 14;
+input double RSILow         = 28;    // Dynamic/adaptive thresholds
+input double RSIHigh        = 72;
+input double LotSize        = 0.001; // Smallest possible for $10 account
+input double RiskPercent    = 2.0;   // Risk per trade (percent of balance)
+input int    Slippage       = 3;
+input int    MagicNumber    = 20240629;
+
+datetime lastTradeTime = 0;
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+   if(AccountInfoDouble(ACCOUNT_BALANCE) < 10.0)
+     {
+      return; // Don't trade if account is below $10
+     }
+
+   double rsi = iRSI(NULL, 0, RSIPeriod, PRICE_CLOSE, 0);
+   double price = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+
+   // Calculate position size based on risk
+   double stopLossPips = 80; // Example SL (change for your asset)
+   double lot = LotSize;
+   double risk = AccountInfoDouble(ACCOUNT_BALANCE) * RiskPercent / 100.0;
+   double pipValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+   if(pipValue > 0)
+     lot = MathMin(LotSize, risk / (stopLossPips * pipValue));
+
+   // Filter: Only one trade per bar
+   static datetime lastBarTime = 0;
+   MqlRates rates[];
+   ArraySetAsSeries(rates, true);
+   int bars = CopyRates(_Symbol, PERIOD_CURRENT, 0, 2, rates);
+   if(bars < 2) return;
+   if(rates[0].time == lastBarTime) return;
+   lastBarTime = rates[0].time;
+
+   // Check for open positions
+   int total = PositionsTotal();
+   bool hasBuy = false, hasSell = false;
+   for(int i=0; i<total; i++)
+     {
+      ulong ticket=PositionGetTicket(i);
+      if(PositionGetInteger(POSITION_MAGIC)==MagicNumber)
+        {
+         if(PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY) hasBuy = true;
+         if(PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_SELL) hasSell = true;
+        }
+     }
+
+   // Entry: RSI Buy
+   if(rsi < RSILow && !hasBuy)
+     {
+      trade(ORDER_TYPE_BUY, lot, price, stopLossPips);
+     }
+
+   // Entry: RSI Sell
+   if(rsi > RSIHigh && !hasSell)
+     {
+      trade(ORDER_TYPE_SELL, lot, price, stopLossPips);
+     }
+  }
+
+//+------------------------------------------------------------------+
+//| Trade execution function                                         |
+//+------------------------------------------------------------------+
+void trade(const int type, const double lots, const double price, const double slPips)
+  {
+   double sl=0,tp=0;
+   if(type==ORDER_TYPE_BUY)
+     {
+      sl = price - slPips*_Point;
+      tp = price + (slPips*0.8)*_Point;
+     }
+   else
+     {
+      sl = price + slPips*_Point;
+      tp = price - (slPips*0.8)*_Point;
+     }
+
+   MqlTradeRequest req={0};
+   MqlTradeResult res={0};
+   req.action = TRADE_ACTION_DEAL;
+   req.symbol = _Symbol;
+   req.volume = lots;
+   req.type = type;
+   req.price = price;
+   req.sl = sl;
+   req.tp = tp;
+   req.deviation = Slippage;
+   req.magic = MagicNumber;
+   req.type_filling = ORDER_FILLING_FOK;
+   OrderSend(req, res);
+  }
+//+------------------------------------------------------------------+
