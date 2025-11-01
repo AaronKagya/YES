@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TE.NET Captive Portal</title>
+    <title>TENET Captive Portal</title>
 </head>
 <body>
-    <h1>Welcome to TE.NET Hotspot</h1>
+    <h1>Welcome to TENET Hotspot</h1>
     <form method="POST">
         <label>Username:</label><br>
         <input type="text" name="username" required><br>
